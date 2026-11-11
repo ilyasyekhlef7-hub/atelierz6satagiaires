@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Inscription des stagiaires</title>
+  <style>
+    :root{color-scheme:light;--ink:#183b35;--muted:#6b817a;--paper:#f6f3ea;--card:#fffdf8;--line:#dedfd4;--green:#1e564b;--green-dark:#153e36;--clay:#cf7657;--soft:#e8eee6;--shadow:0 24px 70px rgba(24,59,53,.12)}
+    *{box-sizing:border-box}
+    body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:radial-gradient(ellipse at 12% 8%,#e6eee3 0,transparent 34%),var(--paper);margin:0;padding:clamp(24px,6vw,72px) 20px;color:var(--ink);min-height:100vh}
+    nav{max-width:490px;margin:0 auto 18px;text-align:right}
+    nav a,header a{color:var(--green);font-weight:700;text-decoration:none;transition:color .2s}
+    nav a:hover,header a:hover{color:var(--clay)}
+    .card{max-width:490px;margin:0 auto;background:var(--card);padding:clamp(26px,6vw,42px);border:1px solid rgba(24,59,53,.08);border-radius:24px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+    .card:before{content:"";position:absolute;top:0;left:0;width:100%;height:6px;background:linear-gradient(90deg,var(--green),#9fb79f,var(--clay))}
+    h1{margin:0 0 8px;font-size:clamp(1.65rem,5vw,2rem);letter-spacing:-.04em;color:var(--ink)}
+    .card h1:after{content:"";display:block;width:42px;height:3px;margin-top:16px;border-radius:4px;background:var(--clay)}
+    label{display:block;margin:18px 0 7px;font-size:.92rem;font-weight:700;color:var(--ink)}
+    input{width:100%;padding:13px 14px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);font:inherit;outline:none;transition:border-color .2s,box-shadow .2s}
+    input:focus{border-color:var(--green);box-shadow:0 0 0 4px rgba(30,86,75,.12)}
+    input[type=file]{padding:10px;background:#f8f8f2;color:var(--muted)}
+    button{width:100%;margin-top:26px;padding:14px 18px;background:var(--green);color:#fff;border:0;border-radius:12px;font:inherit;font-weight:750;cursor:pointer;box-shadow:0 8px 18px rgba(30,86,75,.18);transition:background .2s,transform .2s}
+    button:hover{background:var(--green-dark);transform:translateY(-1px)}
+    button:disabled{opacity:.6;cursor:wait;transform:none}
+    #msg{margin-top:16px;padding:12px 14px;border-radius:12px;display:none;font-weight:600}
+    .ok{background:#e3f1e7;color:#245d3e}.err{background:#fbe9e3;color:#913f2e}
+    @media(max-width:480px){body{padding:24px 14px}.card{border-radius:18px}}
+</style>
+</head>
+<body>
+  <nav><a href="liste.html">Voir la liste </a></nav>
+  <div class="card">
+    <h1>Inscription d'un stagiaire</h1>
+    <form id="form">
+      <label for="nom">Nom</label>
+      <input id="nom" name="nom" required maxlength="100">
+      <label for="prenom">PrÃ©nom</label>
+      <input id="prenom" name="prenom" required maxlength="100">
+      <label for="ville">Ville</label>
+      <input id="ville" name="ville" required maxlength="100">
+      <label for="photo">Photo</label>
+      <input id="photo" name="photo" type="file" accept="image/jpeg,image/png,image/webp" required>
+      <button type="submit" id="btn">Inscrire</button>
+    </form>
+    <div id="msg"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('form');
+    const btn = document.getElementById('btn');
+    const msg = document.getElementById('msg');
+
+    function afficher(texte, ok) {
+      msg.textContent = texte;
+      msg.className = ok ? 'ok' : 'err';
+      msg.style.display = 'block';
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      btn.disabled = true;
+      btn.textContent = 'Envoi en cours...';
+      msg.style.display = 'none';
+      try {
+        const res = await fetch('/api/inscrire.php', { method: 'POST', body: new FormData(form) });
+        const data = await res.json();
+        afficher(data.message, data.success);
+        if (data.success) form.reset();
+      } catch (err) {
+        afficher("Impossible de contacter le serveur.", false);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Inscrire';
+      }
+    });
+  </script>
+</body>
+</html>
+
